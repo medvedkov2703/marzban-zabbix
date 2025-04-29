@@ -34,9 +34,11 @@ This template should be used only with a connection to [Marzban metric exporter]
 * Go to Macros
 * Add such variables there:
 
-{$MARZBAN:IP} as a Macro and as a value type your Marzban server IP, where [marzban metric exporter](https://github.com/kutovoys/marzban-exporter) is installed
-{$MARZBAN:METRICS_PORT} as a Macro and as a value type your Marzban exporter port (default: 9090)
-(optional) {$MARZBAN:METRICS_PATH} as a Macro and as a value type your Marzban exporter metrics path (default: /metrics). Put this Macro only in case you did change path to the metrics
+**{$MARZBAN:IP}** as a Macro and as a value type your Marzban server IP, where [marzban metric exporter](https://github.com/kutovoys/marzban-exporter) is installed
+**{$MARZBAN:METRICS_PORT}** as a Macro and as a value type your Marzban exporter port (default: 9090)<br/>
+*(optional)* **{$MARZBAN:METRICS_PATH}** as a Macro and as a value type your Marzban exporter metrics path (default: /metrics). Put this Macro only in case you did change path to the metrics
 
 * Go back to the Host section
 * In Template section start typing Marzban. You should choose this template and add it to the host
+* Save the host configuration
+* Done
