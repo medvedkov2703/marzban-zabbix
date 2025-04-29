@@ -1,0 +1,148 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    - uuid: 8c5584d871ca42e48ce8d12044c132ac
+      template: Marzban
+      name: Marzban
+      groups:
+        - name: Templates/Applications
+      items:
+        - uuid: 4ee8dc3f74224e75a1af713a9820baf9
+          name: 'Marzban | Get application metrics'
+          type: HTTP_AGENT
+          key: marzban.get.metrics
+          history: '0'
+          value_type: TEXT
+          trends: '0'
+          url: '{$MARZBAN:IP}:{$MARZBAN:METRICS_PORT}{$MARZBAN:METRICS_PATH}'
+          tags:
+            - tag: Application
+              value: Marzban
+        - uuid: 901e7723dd6e4aba94623e5577c3be43
+          name: 'Marzban | All incoming bandwidth'
+          type: DEPENDENT
+          key: marzban.marzban_all_incoming_bandwidth
+          delay: '0'
+          units: B
+          preprocessing:
+            - type: PROMETHEUS_PATTERN
+              parameters:
+                - marzban_all_incoming_bandwidth
+                - value
+                - ''
+          master_item:
+            key: marzban.get.metrics
+          tags:
+            - tag: Application
+              value: Marzban
+        - uuid: 9c0768b85f3a4486aa21b3d0fb301d61
+          name: 'Marzban | All outgoing bandwidth'
+          type: DEPENDENT
+          key: marzban.marzban_all_outgoing_bandwidth
+          delay: '0'
+          units: B
+          preprocessing:
+            - type: PROMETHEUS_PATTERN
+              parameters:
+                - marzban_all_outgoing_bandwidth
+                - value
+                - ''
+          master_item:
+            key: marzban.get.metrics
+          tags:
+            - tag: Application
+              value: Marzban
+        - uuid: 3a01c2b1239d4a0890c14f1a75967833
+          name: 'Marzban | Total number of users'
+          type: DEPENDENT
+          key: marzban.marzban_panel_total_users
+          delay: '0'
+          preprocessing:
+            - type: PROMETHEUS_PATTERN
+              parameters:
+                - marzban_panel_total_users
+                - value
+                - ''
+          master_item:
+            key: marzban.get.metrics
+          tags:
+            - tag: Application
+              value: Marzban
+        - uuid: aa07f4f2ed3c414892fa17e803cc04e0
+          name: 'Marzban | Active number of users'
+          type: DEPENDENT
+          key: marzban.marzban_panel_users_active
+          delay: '0'
+          preprocessing:
+            - type: PROMETHEUS_PATTERN
+              parameters:
+                - marzban_panel_users_active
+                - value
+                - ''
+          master_item:
+            key: marzban.get.metrics
+          tags:
+            - tag: Application
+              value: Marzban
+      discovery_rules:
+        - uuid: d9ca38d152fd49cc894cf2f4ad211a8b
+          name: 'Marzban | Dynamic monitoring by user'
+          type: DEPENDENT
+          key: marzban.dynamic.monitoring.by.user
+          delay: '0'
+          item_prototypes:
+            - uuid: f2b57a1bc25c4b0f866617de4f7342f4
+              name: 'Marzban | {#USERNAME} online status'
+              type: DEPENDENT
+              key: 'marzban.marzban_user_online[{#USERNAME}]'
+              delay: '0'
+              preprocessing:
+                - type: PROMETHEUS_PATTERN
+                  parameters:
+                    - 'marzban_user_online{username="{#USERNAME}"}'
+                    - value
+                    - ''
+              master_item:
+                key: marzban.get.metrics
+              tags:
+                - tag: Application
+                  value: Marzban
+            - uuid: 1ea466769cfe4cbb892a167f03d8b7bd
+              name: 'Marzban | {#USERNAME} used traffic'
+              type: DEPENDENT
+              key: 'marzban.marzban_user_used_traffic[{#USERNAME}]'
+              delay: '0'
+              units: B
+              preprocessing:
+                - type: PROMETHEUS_PATTERN
+                  parameters:
+                    - 'marzban_user_used_traffic{username="{#USERNAME}"}'
+                    - value
+                    - ''
+              master_item:
+                key: marzban.get.metrics
+              tags:
+                - tag: Application
+                  value: Marzban
+          master_item:
+            key: marzban.get.metrics
+          lld_macro_paths:
+            - lld_macro: '{#USERNAME}'
+              path: $.labels.username
+          preprocessing:
+            - type: PROMETHEUS_TO_JSON
+              parameters:
+                - marzban_user_online
+            - type: JSONPATH
+              parameters:
+                - '$.[*]'
+      tags:
+        - tag: Application
+          value: Marzban
+      macros:
+        - macro: '{$MARZBAN:METRICS_PATH}'
+          value: /metrics
+          description: 'In most cases it is /metrics'
